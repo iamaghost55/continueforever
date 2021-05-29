@@ -1,5 +1,6 @@
 import socket
 import threading
+import pprint
 
 import time
 
@@ -61,25 +62,42 @@ class Price(threading.Thread):
     # client aside from the client that has sent it
     # .decode is used to convert the byte data into a printable string
     def run(self):
+        num = 0
+
         while self.signal:
+            num += 1
             try:
                 data = self.socket.recv(90)
-                print(f"New message from {self.address}: {data.decode('utf-8')}")
-
+                # print(f"New message from {self.address}: {data.decode('utf-8')}")
             except:
                 print("Kuryerci " + str(self.address) + " has disconnected")
                 self.signal = False
                 DÜKKANLAR.remove(self)
                 break
+            if data.decode("utf-8") != "":
+                dct[self.address[0]].append(data.decode("utf-8"))
+                """if num > 0:
+                    for key in dct.keys():
+                        
+                        if str(self.address[0]) == key[0]:
+                            dct[self.address].append(data.decode("utf-8"))
+                        else:
+                            pass"""
+                pprint.pprint(dct)
+            else:
+                pass
+
+            #except:
+            #    print("Kuryerci " + str(self.address) + " has disconnected")
+            #    self.signal = False
+            #    DÜKKANLAR.remove(self)
+            #    # break
 
             # print(str(self.address))
-            dct[str(self.address)].append(data.decode("utf-8"))
-            print(dct)
             # print(len(dict))
             #for i in dct.keys():
              #   if i == self.address:
-              #      dct[f"{self.address}"] = "11"
-
+              #      dct[f"{self.address}"] = "11"            continue
             """if data != "":
                 # print("PRICE ID" + str(self.id) + ": " + str(data.decode("utf-8")))
 
@@ -110,21 +128,33 @@ def yeniBaglantilar(socket):
 
         # gelen baglantiyi kabul et
         sock, address = socket.accept()
+        # dct[address[0]] = []
         num += 1 # only because i couldnt find another local up for client.py
         # dct['Agent %s' % num + f" {str(address)}"] = []
-        dct[f"{str(address)}"] = []
-        print(dct)
+
+        if bool(dct) != False:
+            for key in list(dct.keys()):
+                if key != address[0]:
+                    dct[address[0]] = []
+        else:
+            dct[address[0]] = []
+        #print(dct)
 
         global total_connections
         # print(address)
 
+        if Price(sock, address, total_connections, "Name", True) in DÜKKANLAR:
+            pass
+        else:
+            DÜKKANLAR.append(Price(sock, address, total_connections, "Name", True))
+            DÜKKANLAR[len(DÜKKANLAR) - 1].start()
         # print("New connection | DÜKKAN")
-        DÜKKANLAR.append(Price(sock, address, total_connections, "Name", True))
-        DÜKKANLAR[len(DÜKKANLAR) - 1].start()
+        # DÜKKANLAR.append(Price(sock, address, total_connections, "Name", True))
+        # DÜKKANLAR[len(DÜKKANLAR) - 1].start()
         # print(type(DÜKKANLAR[len(DÜKKANLAR) - 1]))
 
-        SCRAPER.append(Kuryerci(sock, address, total_connections, "Name", True))
-        SCRAPER[0].start()
+        # SCRAPER.append(Kuryerci(sock, address, total_connections, "Name", True))
+        # SCRAPER[num].start()
         #SCRAPER = Scrape(sock, address)
         #print(type(SCRAPER))
         #SCRAPER.start()
@@ -152,7 +182,7 @@ def yeniBaglantilar(socket):
             DÜKKANLAR[len(DÜKKANLAR) - 1].start()
             price_ip = address[0]
             #return price_ip"""
-
+        continue
 
 # Serveri kur ve interneti dinle (dinle <=> baglanti ara, baglanmak istiyen var mi diye bak)
 def main_recv():
@@ -168,6 +198,7 @@ def main_recv():
     # Yeni Thread kur ve "yeniBaglantilar" fonksyonunu ac
     newConnectionsThread = threading.Thread(target=yeniBaglantilar, args=(sock,))
     newConnectionsThread.start()
+
 
 # main fonksoynunu ac
 main_recv()
