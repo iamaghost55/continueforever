@@ -17,7 +17,6 @@ PORT = 7676
 HOST_NAME = socket.gethostname()
 
 #SERVER = "127.0.0.1"
-#SERVER = '127.0.0.1'
 SERVER = socket.gethostbyname(HOST_NAME)
 FORMAT = 'utf-8'
 DISCONNECTED = "!DISCONNECTED"
@@ -44,24 +43,24 @@ kurzmitbisschenlang = [kurz, kurz, kurz, kurz, kurz, kurz, kurz, kurz, kurz, kur
 kurzmitmehrlang = [kurz, random.uniform(2,3), random.uniform(2,4), random.uniform(3,5)]
 
 # SELENIUM ________________________________________________________________________________________________________________________________________________________-
-agentur_code = "DE5902553"
-Agent_ID = "DE5902553"
-Passwort = "Isik4543"
+agentur_code = "XXX"
+Agent_ID = "XXX"
+Passwort = "XXX"
 
-url = "https://www.sunexpress.com/reservation/ibe/login?locale=tr"
-path = "C:/Users/user/Downloads/chromedriver_win32/chromedriver.exe"
+url = "XXX"
+path = "XXX"
 
-UA = ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36",]
-PROXY_LIST = ["34.200.144.37:8080", '80.248.15.86:8080']
+UA = ["XXX",
+      "XXX",
+      "XXX",]
+PROXY_LIST = ["XXX", 'XXX']
 # ____________________________________________________________________________________________________________________________________________________________________________________
 
 PNR_PREISVERGLEICH_LIST = []
 PNR_PREISVERGLEICH_DICT = {}
 PNR = dict()
 
-vorübergehende_test_liste = ["ali", "kaya", 15062021,15000,"22072021",12082021,2120,"dus","esb"]
+vorübergehende_test_liste = ["Max", "Mustermann", 15062021, 15000, "22072021", 12082021, 2120, "dus", "esb"]
 
 PNR_LISTE = []
 PNR_LISTE_VERGLEICH = []
@@ -74,6 +73,7 @@ class BackgroundTasks(threading.Thread):
     def run(self,*args,**kwargs):
         while True:
             print('Background listening')
+            
             #toaster.show_toast("Information", "Überprüfe Inbox...", icon_path=None, duration=10, threaded=True)
 
             encodedmessage = client.recv(64)
@@ -118,13 +118,12 @@ while True:
         time.sleep(random.choice(lang))
         pass
 
-    # if we scraped the whole PNR list, start PNR list looping from the beginning by making num -1
     if len(PNR_LISTE) == num:
         print(f"Pnr list completed: {len(PNR_LISTE)} - {num}")
         num = -1
         pass
 
-    # check flight, scrape data, send to server.py
+    # check, scrape data, send to server.py
     def buchungssuche():
         global num
         print(f"{num}: logging in")
@@ -144,8 +143,7 @@ while True:
         driver.find_element_by_xpath('//button[@type="button"]').click()
 
         numnum = 0
-        while True: # einstellen wieviele ich bei einem loop scrapen soll, max 3?
-            # einstellen, dass wenn num > len(PNR_LISTE) -> num zurücksetzen
+        while True: 
             num += 1
             numnum += 1
             print(f"{num}: staring PNR loop")
@@ -218,8 +216,6 @@ while True:
                 clock = driver.find_element_by_xpath("//*[@id='search']/div[2]/div[1]/div[3]/div[1]/div/table/tbody/tr[1]/td[1]/div[1]")
                 print(f"{num}: comparing times -> {PNR_LISTE[num][6]}:{clock.text[0:2] + clock.text[3:5]}")
 
-                # ICH GLAUBE DER VERÄNDERT DEN PREIS EGAL OB GEICH ODER NICHT. ALSO KRIEGT CLIENT.PY EIN TOAST NOTIFICATION OBGLEICH VERÄNDERUNG ODER NCIHT
-                # IF STATEMENTS MÜSSEN NOCH EINGE BAUT WERDEN. IF PREIS TEURER SCHICK DAS; IF NOT SCHICK DAS
                 if PNR_LISTE[num][6] == clock.text[0:2] + clock.text[3:5]:
                     time.sleep(random.choice(kurzmitbisschenlang))
                     new_price = driver.find_element_by_xpath("//*[@id='search']/div[2]/div[1]/div[3]/div[1]/div/table/tbody/tr[1]/td[2]/table/tbody/tr[1]/td/div/span/span[1]/strong")
@@ -230,8 +226,7 @@ while True:
                     PNR_LISTE_VERGLEICH[num][3] = new_price_str
                     print(PNR_LISTE_VERGLEICH)
                     notification = " ".join(PNR_LISTE_VERGLEICH[num])
-                    # print(notification)
-                    # send new PNR to server.py
+
                     def sendmessage(msg):
                         print(notification)
                         notification_encoded = msg.encode(FORMAT)
@@ -246,8 +241,6 @@ while True:
             elif len(PNR_LISTE) == num:
                 break
 
-    # if we received a message -> set selenium options and call buchungssuche()
-    # neue ip erst nach einigen malen noch machen
     if len(PNR_LISTE) != 0:
         print(f"{num}: setting new options. New PNR: {PNR_LISTE}")
         options = webdriver.ChromeOptions()
